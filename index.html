@@ -199,7 +199,6 @@
 
 			.cta-group {
 				position: relative;
-				min-height: 108px;
 				margin-top: 28px;
 			}
 
@@ -207,9 +206,10 @@
 				display: flex;
 				flex-wrap: wrap;
 				align-items: center;
-				gap: 14px;
+				gap: 18px 28px;
 				position: relative;
-				padding-right: 140px;
+				width: min(100%, 540px);
+				min-height: 190px;
 			}
 
 			.love-button,
@@ -224,6 +224,8 @@
 			}
 
 			.love-button {
+				position: relative;
+				z-index: 1;
 				color: #fff;
 				background: linear-gradient(135deg, var(--accent) 0%, #ff7aa6 100%);
 				box-shadow: var(--shadow-button);
@@ -237,15 +239,28 @@
 			.escape-button {
 				position: absolute;
 				top: 0;
-				right: 0;
+				left: 0;
+				right: auto;
+				z-index: 3;
+				min-width: 168px;
+				cursor: not-allowed;
+				user-select: none;
 				color: var(--accent-dark);
 				background: #fff;
 				border: 1px solid rgba(255, 164, 189, 0.6);
 				box-shadow: 0 12px 24px rgba(145, 76, 100, 0.12);
+				will-change: left, top, transform;
 			}
 
 			.escape-button:hover {
 				background: #fff6f9;
+			}
+
+			.escape-anchor {
+				flex: 0 0 168px;
+				width: 168px;
+				height: 58px;
+				pointer-events: none;
 			}
 
 			.hint {
@@ -426,23 +441,8 @@
 				}
 
 				.action-row {
-					display: grid;
-					justify-content: center;
-					padding-right: 0;
-					padding-bottom: 0;
-				}
-
-				.escape-button {
-					position: relative;
-					top: auto;
-					right: auto;
-					bottom: auto;
-					left: auto;
-					transform: none;
-				}
-
-				.escape-button:hover {
-					transform: none;
+					margin-inline: auto;
+					min-height: 210px;
 				}
 			}
 
@@ -485,13 +485,23 @@
 					padding: 10px;
 				}
 
-				.love-button,
-				.escape-button {
+				.love-button {
 					width: 100%;
 				}
 
+				.escape-button {
+					width: auto;
+					min-width: 150px;
+				}
+
+				.escape-anchor {
+					flex-basis: 150px;
+					width: 150px;
+					margin-inline: auto;
+				}
+
 				.action-row {
-					gap: 12px;
+					min-height: 230px;
 				}
 			}
 
@@ -525,16 +535,14 @@
 
 					<div class="cta-group">
 						<div class="action-row" id="buttonArea">
-							<button class="love-button" type="button" onclick="showAlert()">
+							<button class="love-button" id="yesBtn" type="button" onclick="showAlert()">
 								Yes, absolutely
 							</button>
+							<span class="escape-anchor" id="escapeAnchor" aria-hidden="true"></span>
 							<button
 								class="escape-button"
 								id="myBtn"
 								type="button"
-								onmouseenter="changeFunction()"
-								onfocus="changeFunction()"
-								onclick="changeFunction()"
 							>
 								Maybe not...
 							</button>
@@ -556,7 +564,7 @@
 							</div>
 						</div>
 						<div class="sticker-badge">
-							<img src="./images/wow.gif" alt="" />
+							<img src="./images/quby-love.gif" alt="" />
 						</div>
 						<div class="sparkle one"></div>
 						<div class="sparkle two"></div>
@@ -570,6 +578,19 @@
 		<script src="https://cdn.rawgit.com/t4t5/sweetalert/32bd141c/dist/sweetalert.min.js"></script>
 		<script>
 			const defaultName = "kamu";
+			let moveCount = 0;
+
+			function getRandomPosition(buttonArea, button) {
+				const areaRect = buttonArea.getBoundingClientRect();
+				const buttonRect = button.getBoundingClientRect();
+				const maxLeft = Math.max(areaRect.width - buttonRect.width, 0);
+				const maxTop = Math.max(areaRect.height - buttonRect.height, 0);
+
+				return {
+					left: Math.random() * maxLeft,
+					top: Math.random() * maxTop,
+				};
+			}
 
 			window.onload = function () {
 				const queryString = window.location.search;
@@ -579,9 +600,26 @@
 
 				$("#name").text(safeName);
 				$("#name-chip").text(safeName);
+
+				const button = document.getElementById("myBtn");
+				const anchor = document.getElementById("escapeAnchor");
+				const buttonArea = document.getElementById("buttonArea");
+				if (button) {
+					["mouseenter", "mousemove", "pointerdown", "focus", "click", "touchstart"].forEach(function (eventName) {
+						button.addEventListener(eventName, changeFunction, { passive: false });
+					});
+				}
+
+				if (button && anchor && buttonArea) {
+					const anchorRect = anchor.getBoundingClientRect();
+					const areaRect = buttonArea.getBoundingClientRect();
+					const initialLeft = anchorRect.left - areaRect.left;
+					const initialTop = anchorRect.top - areaRect.top;
+					placeButton(initialLeft, initialTop);
+				}
 			};
 
-			function changeFunction() {
+			function placeButton(x, y) {
 				const button = document.getElementById("myBtn");
 				const buttonArea = document.getElementById("buttonArea");
 
@@ -589,44 +627,77 @@
 					return;
 				}
 
-				const isMobile = window.innerWidth <= 992;
 				const areaRect = buttonArea.getBoundingClientRect();
 				const buttonRect = button.getBoundingClientRect();
+				const maxLeft = Math.max(areaRect.width - buttonRect.width, 0);
+				const maxTop = Math.max(areaRect.height - buttonRect.height, 0);
+				const nextLeft = Math.min(Math.max(x, 0), maxLeft);
+				const nextTop = Math.min(Math.max(y, 0), maxTop);
 
-				if (isMobile) {
-					const maxOffset = Math.max((areaRect.width - buttonRect.width) / 2, 0);
-					const nextX = (Math.random() * 2 - 1) * maxOffset;
-					button.style.position = "relative";
-					button.style.right = "auto";
-					button.style.left = "auto";
-					button.style.top = "auto";
-					button.style.bottom = "auto";
-					button.style.transform = "translateX(" + nextX.toFixed(0) + "px)";
+				button.style.position = "absolute";
+				button.style.left = nextLeft.toFixed(0) + "px";
+				button.style.top = nextTop.toFixed(0) + "px";
+				button.style.right = "auto";
+				button.style.bottom = "auto";
+				button.style.transform = "translate3d(0, 0, 0)";
+			}
+
+			function changeFunction(event) {
+				const button = document.getElementById("myBtn");
+				const buttonArea = document.getElementById("buttonArea");
+
+				if (!button || !buttonArea) {
 					return;
 				}
 
-				button.style.position = "absolute";
-				const maxRight = Math.max(areaRect.width - buttonRect.width, 0);
-				const maxTop = Math.max(areaRect.height - buttonRect.height, 0);
-				const nextRight = Math.random() * maxRight;
-				const nextTop = Math.random() * maxTop;
+				if (event) {
+					event.preventDefault();
+				}
 
-				button.style.left = "auto";
-				button.style.bottom = "auto";
-				button.style.right = nextRight.toFixed(0) + "px";
-				button.style.top = nextTop.toFixed(0) + "px";
-				button.style.transform = "none";
+				const areaRect = buttonArea.getBoundingClientRect();
+				const buttonRect = button.getBoundingClientRect();
+				const maxLeft = Math.max(areaRect.width - buttonRect.width, 0);
+				const maxTop = Math.max(areaRect.height - buttonRect.height, 0);
+				const currentLeft = button.offsetLeft;
+				const currentTop = button.offsetTop;
+				const touchPoint = event && event.touches && event.touches[0] ? event.touches[0] : null;
+				const pointerClientX = touchPoint ? touchPoint.clientX : event && typeof event.clientX === "number" ? event.clientX : areaRect.left + areaRect.width / 2;
+				const pointerClientY = touchPoint ? touchPoint.clientY : event && typeof event.clientY === "number" ? event.clientY : areaRect.top + areaRect.height / 2;
+				const pointerX = pointerClientX - areaRect.left;
+				const pointerY = pointerClientY - areaRect.top;
+				const awayX = currentLeft + buttonRect.width / 2 < pointerX ? -1 : 1;
+				const awayY = currentTop + buttonRect.height / 2 < pointerY ? -1 : 1;
+				const jumpBase = window.innerWidth <= 992 ? 140 : 185;
+				const jumpBoost = Math.min(moveCount * 20, 190);
+				const jumpDistance = jumpBase + jumpBoost;
+				let nextLeft =
+					currentLeft +
+					awayX * jumpDistance +
+					(Math.random() * 120 - 60);
+				let nextTop =
+					currentTop +
+					awayY * (jumpDistance * 0.9) +
+					(Math.random() * 120 - 60);
+
+				if (nextLeft < 0 || nextLeft > maxLeft) {
+					nextLeft = getRandomPosition(buttonArea, button).left;
+				}
+
+				if (nextTop < 0 || nextTop > maxTop) {
+					nextTop = getRandomPosition(buttonArea, button).top;
+				}
+
+				moveCount += 1;
+				placeButton(nextLeft, nextTop);
 			}
 
 			function showAlert() {
-				swal({
-					title: "Yeayy ><",
-					text: "Makasih udah bilang iya. Sekarang sini, peluk virtual dulu.",
-					imageUrl: "./images/wow.gif",
-					imageWidth: 280,
-					imageHeight: 280,
-					confirmButtonText: "Awww",
-				});
+				const params = new URLSearchParams(window.location.search);
+				const rawName = params.get("name");
+				const safeName = rawName && rawName.trim() ? rawName.trim() : defaultName;
+				const target = "./yes.html?name=" + encodeURIComponent(safeName);
+
+				window.location.href = target;
 			}
 		</script>
 	</body>
