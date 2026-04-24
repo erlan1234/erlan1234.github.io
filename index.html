@@ -5,6 +5,12 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Hai, kamu!</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+			rel="stylesheet"
+		/>
 		<link
 			href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
 			rel="stylesheet"
@@ -15,130 +21,611 @@
 			href="https://cdn.rawgit.com/t4t5/sweetalert/32bd141c/dist/sweetalert.css"
 			rel="stylesheet"
 		/>
+		<style>
+			:root {
+				--bg-top: #fff8f3;
+				--bg-bottom: #ffe0ea;
+				--card-bg: rgba(255, 255, 255, 0.78);
+				--text-main: #47263b;
+				--text-soft: #8b5d76;
+				--accent: #ff5d8f;
+				--accent-dark: #d94877;
+				--accent-soft: #ffd2df;
+				--shadow-soft: 0 30px 80px rgba(180, 79, 117, 0.18);
+				--shadow-button: 0 18px 30px rgba(217, 72, 119, 0.28);
+			}
+
+			* {
+				box-sizing: border-box;
+			}
+
+			body {
+				margin: 0;
+				min-height: 100vh;
+				font-family: "Fredoka", sans-serif;
+				color: var(--text-main);
+				background:
+					radial-gradient(circle at top left, rgba(255, 255, 255, 0.95), transparent 28%),
+					radial-gradient(circle at top right, rgba(255, 182, 200, 0.45), transparent 30%),
+					linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+				overflow-x: hidden;
+			}
+
+			body::before,
+			body::after {
+				content: "";
+				position: fixed;
+				inset: auto;
+				border-radius: 50%;
+				filter: blur(12px);
+				opacity: 0.65;
+				pointer-events: none;
+				z-index: 0;
+			}
+
+			body::before {
+				width: 220px;
+				height: 220px;
+				top: -60px;
+				right: -40px;
+				background: rgba(255, 133, 172, 0.3);
+			}
+
+			body::after {
+				width: 180px;
+				height: 180px;
+				left: -50px;
+				bottom: 40px;
+				background: rgba(255, 225, 235, 0.95);
+			}
+
+			.page-shell {
+				position: relative;
+				z-index: 1;
+				min-height: 100vh;
+				padding: 24px;
+				display: grid;
+				place-items: center;
+			}
+
+			.floating-heart {
+				position: absolute;
+				font-size: clamp(1.2rem, 2vw, 1.8rem);
+				opacity: 0.5;
+				animation: floatUp 5.8s ease-in-out infinite;
+				pointer-events: none;
+			}
+
+			.floating-heart.one {
+				top: 10%;
+				left: 10%;
+				animation-delay: 0s;
+			}
+
+			.floating-heart.two {
+				top: 18%;
+				right: 12%;
+				animation-delay: 1.3s;
+			}
+
+			.floating-heart.three {
+				bottom: 16%;
+				left: 12%;
+				animation-delay: 2.2s;
+			}
+
+			.floating-heart.four {
+				right: 18%;
+				bottom: 12%;
+				animation-delay: 3.1s;
+			}
+
+			.hero-card {
+				width: min(1120px, 100%);
+				display: grid;
+				grid-template-columns: 1.05fr 0.95fr;
+				gap: 32px;
+				align-items: center;
+				padding: clamp(24px, 4vw, 44px);
+				border-radius: 36px;
+				background: var(--card-bg);
+				backdrop-filter: blur(14px);
+				box-shadow: var(--shadow-soft);
+				border: 1px solid rgba(255, 255, 255, 0.8);
+				overflow: hidden;
+				position: relative;
+			}
+
+			.hero-card::before {
+				content: "";
+				position: absolute;
+				width: 320px;
+				height: 320px;
+				right: -120px;
+				top: -130px;
+				background: radial-gradient(circle, rgba(255, 141, 176, 0.35), transparent 68%);
+				pointer-events: none;
+			}
+
+			.content-side {
+				position: relative;
+				z-index: 1;
+			}
+
+			.eyebrow {
+				display: inline-flex;
+				align-items: center;
+				gap: 8px;
+				padding: 10px 16px;
+				border-radius: 999px;
+				font-size: 0.95rem;
+				font-weight: 600;
+				color: var(--accent-dark);
+				background: rgba(255, 255, 255, 0.9);
+				box-shadow: 0 12px 24px rgba(255, 93, 143, 0.12);
+			}
+
+			.title {
+				margin: 18px 0 14px;
+				font-family: "Playfair Display", serif;
+				font-size: clamp(2.5rem, 5vw, 4.7rem);
+				line-height: 0.98;
+			}
+
+			.title span {
+				display: block;
+				color: var(--accent-dark);
+			}
+
+			.subtitle {
+				margin: 0;
+				max-width: 36rem;
+				font-size: clamp(1rem, 1.8vw, 1.2rem);
+				line-height: 1.7;
+				color: var(--text-soft);
+			}
+
+			.name-chip {
+				display: inline-block;
+				margin-top: 18px;
+				padding: 10px 18px;
+				border-radius: 999px;
+				font-size: 1rem;
+				font-weight: 600;
+				color: var(--text-main);
+				background: linear-gradient(135deg, rgba(255, 208, 221, 0.8), rgba(255, 255, 255, 0.95));
+				border: 1px solid rgba(255, 160, 188, 0.55);
+			}
+
+			.cta-group {
+				position: relative;
+				min-height: 108px;
+				margin-top: 28px;
+			}
+
+			.action-row {
+				display: flex;
+				flex-wrap: wrap;
+				align-items: center;
+				gap: 14px;
+				position: relative;
+				padding-right: 140px;
+			}
+
+			.love-button,
+			.escape-button {
+				border: none;
+				border-radius: 999px;
+				padding: 16px 28px;
+				font-size: 1rem;
+				font-weight: 700;
+				letter-spacing: 0.01em;
+				transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+			}
+
+			.love-button {
+				color: #fff;
+				background: linear-gradient(135deg, var(--accent) 0%, #ff7aa6 100%);
+				box-shadow: var(--shadow-button);
+			}
+
+			.love-button:hover {
+				transform: translateY(-2px) scale(1.01);
+				box-shadow: 0 24px 36px rgba(217, 72, 119, 0.35);
+			}
+
+			.escape-button {
+				position: absolute;
+				top: 0;
+				right: 0;
+				color: var(--accent-dark);
+				background: #fff;
+				border: 1px solid rgba(255, 164, 189, 0.6);
+				box-shadow: 0 12px 24px rgba(145, 76, 100, 0.12);
+			}
+
+			.escape-button:hover {
+				background: #fff6f9;
+			}
+
+			.hint {
+				margin-top: 16px;
+				font-size: 0.95rem;
+				color: var(--text-soft);
+			}
+
+			.visual-side {
+				position: relative;
+				min-height: 420px;
+				display: grid;
+				place-items: center;
+			}
+
+			.photo-stack {
+				position: relative;
+				width: min(100%, 430px);
+				aspect-ratio: 0.92;
+			}
+
+			.glow {
+				position: absolute;
+				inset: 12% 10% auto;
+				height: 56%;
+				border-radius: 40px;
+				background: linear-gradient(180deg, rgba(255, 158, 188, 0.4), rgba(255, 227, 236, 0.18));
+				filter: blur(18px);
+				transform: rotate(-8deg);
+			}
+
+			.photo-card {
+				position: absolute;
+				overflow: hidden;
+				border-radius: 28px;
+				background: #fff;
+				box-shadow: 0 24px 46px rgba(115, 67, 89, 0.18);
+				border: 1px solid rgba(255, 255, 255, 0.92);
+			}
+
+			.photo-card img {
+				display: block;
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+			}
+
+			.photo-card.main {
+				inset: 8% 8% 10% 18%;
+				transform: rotate(5deg);
+			}
+
+			.photo-card.small {
+				width: 41%;
+				height: 42%;
+				left: 0;
+				bottom: 6%;
+				transform: rotate(-9deg);
+				display: flex;
+				align-items: flex-end;
+				padding: 18px;
+				background: linear-gradient(180deg, #fffdfd, #ffeef4);
+			}
+
+			.mini-note {
+				width: 100%;
+				padding: 14px;
+				border-radius: 20px;
+				background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(255, 233, 240, 0.95));
+				box-shadow: inset 0 0 0 1px rgba(255, 170, 194, 0.26);
+			}
+
+			.mini-note-label {
+				display: block;
+				font-size: 0.74rem;
+				font-weight: 600;
+				letter-spacing: 0.08em;
+				text-transform: uppercase;
+				color: var(--text-soft);
+			}
+
+			.mini-note-text {
+				display: block;
+				margin-top: 6px;
+				font-family: "Playfair Display", serif;
+				font-size: 1.25rem;
+				font-weight: 700;
+				line-height: 1.05;
+				color: var(--accent-dark);
+			}
+
+			.sticker-badge {
+				position: absolute;
+				right: 4%;
+				bottom: 2%;
+				width: min(34vw, 130px);
+				aspect-ratio: 1;
+				display: grid;
+				place-items: center;
+				padding: 12px;
+				border-radius: 28px;
+				background: rgba(255, 255, 255, 0.82);
+				box-shadow: 0 20px 34px rgba(125, 70, 95, 0.18);
+				transform: rotate(-8deg);
+			}
+
+			.sticker-badge img {
+				width: 100%;
+				height: 100%;
+				object-fit: contain;
+			}
+
+			.sparkle {
+				position: absolute;
+				border-radius: 999px;
+				background: rgba(255, 255, 255, 0.85);
+				box-shadow: 0 0 18px rgba(255, 136, 170, 0.42);
+			}
+
+			.sparkle.one {
+				width: 12px;
+				height: 12px;
+				top: 16%;
+				right: 18%;
+			}
+
+			.sparkle.two {
+				width: 18px;
+				height: 18px;
+				left: 12%;
+				top: 32%;
+			}
+
+			.sparkle.three {
+				width: 10px;
+				height: 10px;
+				right: 24%;
+				bottom: 28%;
+			}
+
+			@keyframes floatUp {
+				0%,
+				100% {
+					transform: translateY(0) scale(1);
+				}
+
+				50% {
+					transform: translateY(-12px) scale(1.08);
+				}
+			}
+
+			@media (max-width: 992px) {
+				.page-shell {
+					padding: 18px;
+				}
+
+				.hero-card {
+					grid-template-columns: 1fr;
+					gap: 18px;
+				}
+
+				.content-side {
+					order: 2;
+					text-align: center;
+				}
+
+				.subtitle {
+					margin-inline: auto;
+				}
+
+				.visual-side {
+					order: 1;
+					min-height: 340px;
+				}
+
+				.cta-group {
+					min-height: auto;
+				}
+
+				.action-row {
+					display: grid;
+					justify-content: center;
+					padding-right: 0;
+					padding-bottom: 0;
+				}
+
+				.escape-button {
+					position: relative;
+					top: auto;
+					right: auto;
+					bottom: auto;
+					left: auto;
+					transform: none;
+				}
+
+				.escape-button:hover {
+					transform: none;
+				}
+			}
+
+			@media (max-width: 640px) {
+				.page-shell {
+					padding: 14px;
+				}
+
+				.hero-card {
+					padding: 22px 18px;
+					border-radius: 26px;
+				}
+
+				.title {
+					font-size: clamp(2.2rem, 12vw, 3.3rem);
+				}
+
+				.visual-side {
+					min-height: 270px;
+				}
+
+				.photo-stack {
+					width: 100%;
+					max-width: 320px;
+				}
+
+				.photo-card.main {
+					inset: 5% 6% 11% 18%;
+				}
+
+				.photo-card.small {
+					width: 43%;
+					height: 41%;
+					left: 2%;
+					bottom: 8%;
+				}
+
+				.sticker-badge {
+					width: 104px;
+					padding: 10px;
+				}
+
+				.love-button,
+				.escape-button {
+					width: 100%;
+				}
+
+				.action-row {
+					gap: 12px;
+				}
+			}
+
+			@media (prefers-reduced-motion: reduce) {
+				* {
+					animation: none !important;
+					transition: none !important;
+					scroll-behavior: auto !important;
+				}
+			}
+		</style>
 	</head>
 	<body>
-		<!-- <div style="display: flex; flex-direction: row; flex: 2; height: 100vh">
-			<div style="display: flex; flex-direction: column; flex: 2">
-				<div
-					style="
-						display: flex;
-						flex-wrap: wrap;
-						background-color: azure;
-						flex: 1;
-						justify-content: center;
-						align-items: center;
-					"
-				>
-					<h1>Can we hangout sometimes?</h1>
-				</div>
-				<div
-					style="
-						display: flex;
-						flex-wrap: wrap;
-						background-color: azure;
-						flex: 1;
-						justify-content: center;
-						align-items: center;
-					"
-				>
-					<button
-						class="btn btn-primary btn-lg"
-						style="margin-right: 250px"
-						onclick="showAlert()"
-					>
-						mawu
-					</button>
-					<button
-						class="btn btn-danger btn-lg ml-3"
-						id="myBtn"
-						style="position: absolute"
-						onclick="changeFunction()"
-					>
-						gamawu
-					</button>
-				</div>
-			</div>
-			<div
-				style="
-					display: flex;
-					flex-wrap: wrap;
-					background-color: aliceblue;
-					flex: 1;
-					justify-content: center;
-					align-items: center;
-				"
-			>
-				<img
-					src="https://s3.getstickerpack.com/storage/uploads/sticker-pack/quby-pentol-gif/sticker_11.gif?afb050261cc5640e21ce2eb44043c17a"
-					alt=""
-				/>
-			</div>
-		</div> -->
+		<main class="page-shell">
+			<div class="floating-heart one">❤</div>
+			<div class="floating-heart two">❤</div>
+			<div class="floating-heart three">❤</div>
+			<div class="floating-heart four">❤</div>
 
-		<div class="" style="height: 100vh; background-color: aliceblue">
-			<div class="" style="padding-top: 20%">
-				<div class="" align="center">
-					<h1 align="center">Hai, <span id="name">kamu</span></h1>
-					<h1 align="center">Do u wanna be my girlfriend?</h1>
-					<img
-						src="https://s3.getstickerpack.com/storage/uploads/sticker-pack/quby-pentol-gif/sticker_11.gif?afb050261cc5640e21ce2eb44043c17a"
-						alt=""
-						width="80%"
-					/>
-					<div class="">
-						<button class="btn btn-primary" onclick="showAlert()">
-							Yes!
-						</button>
-						<button
-							class="btn btn-danger"
-							id="myBtn"
-							onclick="changeFunction()"
-							style="position: relative"
-						>
-							No!
-						</button>
+			<section class="hero-card">
+				<div class="content-side">
+					<div class="eyebrow">Special question just for you</div>
+					<h1 class="title">
+						Hai, <span id="name">kamu</span>
+						Will you be my girlfriend?
+					</h1>
+					<p class="subtitle">
+						Aku bikin halaman ini khusus buat kamu, semoga kamu suka ya :)
+					</p>
+					<div class="name-chip">For: <span id="name-chip">kamu</span></div>
+
+					<div class="cta-group">
+						<div class="action-row" id="buttonArea">
+							<button class="love-button" type="button" onclick="showAlert()">
+								Yes, absolutely
+							</button>
+							<button
+								class="escape-button"
+								id="myBtn"
+								type="button"
+								onmouseenter="changeFunction()"
+								onfocus="changeFunction()"
+								onclick="changeFunction()"
+							>
+								Maybe not...
+							</button>
+						</div>
+						<p class="hint">Coba klik "No" kalau bisa. Aku pengin lihat seberapa lincah dia kabur.</p>
 					</div>
 				</div>
-			</div>
-		</div>
+
+				<div class="visual-side" aria-hidden="true">
+					<div class="photo-stack">
+						<div class="glow"></div>
+						<div class="photo-card main">
+							<img src="./images/love1.jpg" alt="" />
+						</div>
+						<div class="photo-card small">
+							<div class="mini-note">
+								<span class="mini-note-label">little note</span>
+								<span class="mini-note-text">Only for you</span>
+							</div>
+						</div>
+						<div class="sticker-badge">
+							<img src="./images/wow.gif" alt="" />
+						</div>
+						<div class="sparkle one"></div>
+						<div class="sparkle two"></div>
+						<div class="sparkle three"></div>
+					</div>
+				</div>
+			</section>
+		</main>
 
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 		<script src="https://cdn.rawgit.com/t4t5/sweetalert/32bd141c/dist/sweetalert.min.js"></script>
 		<script>
+			const defaultName = "kamu";
+
 			window.onload = function () {
 				const queryString = window.location.search;
-				console.log(queryString);
 				const urlParams = new URLSearchParams(queryString);
-				const name = urlParams.get("name");
-				console.log(name);
-				$("#name").html(name);
-			};
-			function changeFunction() {
-				console.log("asnaj");
-				console.log(Math.floor(Math.random() * (100 - 100 + 1) + 100));
-				// document.getElementById("myBtn").style.left =
-				// 	Math.floor(Math.random() * (50 - 1 + 1) + 100).toString() +
-				// 	"px";
-				document.getElementById("myBtn").style.right =
-					Math.floor(Math.random() * (50 - 1 + 1) + 100).toString() +
-					"px";
-				document.getElementById("myBtn").style.top =
-					Math.floor(Math.random() * (100 - 1 + 1) + 50).toString() +
-					"px";
+				const rawName = urlParams.get("name");
+				const safeName = rawName && rawName.trim() ? rawName.trim() : defaultName;
 
-				// btn.style.top = "100px";
-				// btn.style.left = "100px";
+				$("#name").text(safeName);
+				$("#name-chip").text(safeName);
+			};
+
+			function changeFunction() {
+				const button = document.getElementById("myBtn");
+				const buttonArea = document.getElementById("buttonArea");
+
+				if (!button || !buttonArea) {
+					return;
+				}
+
+				const isMobile = window.innerWidth <= 992;
+				const areaRect = buttonArea.getBoundingClientRect();
+				const buttonRect = button.getBoundingClientRect();
+
+				if (isMobile) {
+					const maxOffset = Math.max((areaRect.width - buttonRect.width) / 2, 0);
+					const nextX = (Math.random() * 2 - 1) * maxOffset;
+					button.style.position = "relative";
+					button.style.right = "auto";
+					button.style.left = "auto";
+					button.style.top = "auto";
+					button.style.bottom = "auto";
+					button.style.transform = "translateX(" + nextX.toFixed(0) + "px)";
+					return;
+				}
+
+				button.style.position = "absolute";
+				const maxRight = Math.max(areaRect.width - buttonRect.width, 0);
+				const maxTop = Math.max(areaRect.height - buttonRect.height, 0);
+				const nextRight = Math.random() * maxRight;
+				const nextTop = Math.random() * maxTop;
+
+				button.style.left = "auto";
+				button.style.bottom = "auto";
+				button.style.right = nextRight.toFixed(0) + "px";
+				button.style.top = nextTop.toFixed(0) + "px";
+				button.style.transform = "none";
 			}
 
 			function showAlert() {
 				swal({
-					title: "Yeayy><",
-					text: "Lets give me a hug!!! :(",
-					imageUrl:
-						"https://s3.getstickerpack.com/storage/uploads/sticker-pack/quby-pentol-gif/sticker_26.gif?afb050261cc5640e21ce2eb44043c17a",
-					imageWidth: 600,
-					imageHeight: 500,
-					imageAlt: "Custom image",
+					title: "Yeayy ><",
+					text: "Makasih udah bilang iya. Sekarang sini, peluk virtual dulu.",
+					imageUrl: "./images/wow.gif",
+					imageWidth: 280,
+					imageHeight: 280,
+					confirmButtonText: "Awww",
 				});
 			}
 		</script>
